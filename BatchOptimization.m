@@ -7,14 +7,9 @@
 %UCB acquisition function hyperparameter "k" (kappa).
 
 % Select moodality
-dataset='rat';              %selected dataset
-which_opt= 'noisemax';     %hyperparameter to optimize
+dataset='nhp';              %selected dataset
+which_opt= 'nrand';     %hyperparameter to optimize
 nRep=50;                    %number of repetitions
-
-% Provide a rough estimation of running time
-exp_time=ceil(27*35/50*nRep*[10 16]/60/60);
-disp(['The procedure can take approximately ' num2str(exp_time(1)) ' to ' num2str(exp_time(2)) ' hours on a standard workstation (Intel i7-6700 @ 3.4GHz).'])
-
 
 % Load data
 if strcmp(dataset,'nhp')
@@ -24,6 +19,8 @@ if strcmp(dataset,'nhp')
     load('Cebus1_M1_190221.mat')
     load('Cebus2_M1_200123.mat')
     SETS=[Macaque1_M1_181212 Macaque2_M1_190527 Cebus1_M1_190221 Cebus2_M1_200123];
+    % Provide a rough estimation of running time
+    exp_time=ceil(22*130/50*nRep*[10 16]/60/60);
     
 elseif strcmp(dataset,'rat')  
     %rat dataset has 6 subjects  
@@ -34,8 +31,11 @@ elseif strcmp(dataset,'rat')
     load('rat5_M1_191112.mat')
     load('rat6_M1_200218.mat')
     SETS=[rat1_M1_190716 rat2_M1_190617 rat3_M1_190728 rat4_M1_191109 rat5_M1_191112 rat6_M1_200218];
+    % Provide a rough estimation of running time
+    exp_time=ceil(27*35/50*nRep*[10 16]/60/60);
 end
   
+disp(['The procedure can take approximately ' num2str(exp_time(1)) ' to ' num2str(exp_time(2)) ' hours on a standard workstation (Intel i7-6700 @ 3.4GHz).'])
 
 mKernel=5;                  %Matern kernel order
 noise_min= 0.001;           %Non-zero to avoid numerical instability
@@ -281,28 +281,13 @@ else
     dd3=[num2str(dd3)];
 end
 ddate=[dd1 dd2 dd3];
-% clear Cebus1_M1_190221 Cebus2_M1_200123 Macaque1_M1_181212 Macaque2_M1_190527 SETS subject
 fn=[dataset '_' which_opt '_' num2str(nRep) '_' ddate]; %file name
-save(fn,'-regexp','^(?!(Cebus1_M1_190221|Cebus2_M1_200123|Macaque1_M1_181212|Macaque2_M1_190527|SETS|subject|rat1_M1_190716|rat2_M1_190617|rat3_M1_190728|rat4_M1_191109|rat5_M1_191112|rat6_M1_200218)$). ')
-
-% %save all workspace, excluding datasets
-% if strcmp(dataset,'nhp')
-%     load('Macaque1_M1_181212.mat')
-%     load('Macaque2_M1_190527.mat')
-%     load('Cebus1_M1_190221.mat')
-%     load('Cebus2_M1_200123.mat')
-%     SETS=[Macaque1_M1_181212 Macaque2_M1_190527 Cebus1_M1_190221 Cebus2_M1_200123];
-% elseif strcmp(dataset,'rat')    
-%     load('rat1_M1_190716.mat')
-%     load('rat2_M1_190617.mat')
-%     load('rat3_M1_190728.mat')
-%     load('rat4_M1_191109.mat')
-%     load('rat5_M1_191112.mat')
-%     load('rat6_M1_200218.mat')
-%     SETS=[rat1_M1_190716 rat2_M1_190617 rat3_M1_190728 rat4_M1_191109 rat5_M1_191112 rat6_M1_200218];
-% end
+save(fn,'covf','dataset','hyperparams','infm','kappa','likf','MaxQueries',...
+    'mKernel','msr','noisemax','noise_min','nRep','nrnd','prior','PP',...
+    'PP_t','PT','rho_high','rho_low','RSQ','this_opt','which_opt','YMU')
 
 
+%
 %show performance graphs
 clear perft perftt
 for k_i=1:numel(this_opt)
