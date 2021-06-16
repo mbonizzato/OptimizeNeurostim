@@ -7,8 +7,8 @@
 %UCB acquisition function hyperparameter "k" (kappa).
 
 % Select moodality
-dataset='nhp';              %selected dataset
-which_opt= 'nrand';     %hyperparameter to optimize
+dataset='rat';              %selected dataset
+which_opt= 'noisemax';     %hyperparameter to optimize
 nRep=50;                    %number of repetitions
 
 % Load data
@@ -34,8 +34,12 @@ elseif strcmp(dataset,'rat')
     % Provide a rough estimation of running time
     exp_time=ceil(27*35/50*nRep*[10 16]/60/60);
 end
-  
-disp(['The procedure can take approximately ' num2str(exp_time(1)) ' to ' num2str(exp_time(2)) ' hours on a standard workstation (Intel i7-6700 @ 3.4GHz).'])
+
+if exp_time(2)==1
+    disp(['The procedure should take less than 1 hour on a standard workstation (Intel i7-6700 @ 3.4GHz).'])
+else    
+    disp(['The procedure can take approximately ' num2str(exp_time(1)) ' to ' num2str(exp_time(2)) ' hours on a standard workstation (Intel i7-6700 @ 3.4GHz).'])
+end
 
 mKernel=5;                  %Matern kernel order
 noise_min= 0.001;           %Non-zero to avoid numerical instability
@@ -52,7 +56,7 @@ if strcmp(dataset,'nhp')
     nrnd=1;
     noisemax=0.1;
 elseif strcmp(dataset,'rat') 
-    kappa=2.7;
+    kappa=3;
     rho_high=3; 
     rho_low=0.01;
     nrnd=1;
@@ -62,7 +66,7 @@ end
 
 %A selection of values to be tested for the selected hyperparameter
 if strcmp(which_opt,'rholow')
-    this_opt = [0.001 0.002 0.005 0.01 0.02 0.05 0.1 0.2 0.5 1 2] % rho_low
+    this_opt = [0.001 0.002 0.005 0.01 0.02 0.05 0.1 0.2 0.5 1 2]; % rho_low
 elseif strcmp(which_opt,'rhohi')
     this_opt= [1.1 1.2:.3:3 4:10 ]; %rho_high
 elseif strcmp(which_opt,'noisemax')
@@ -97,7 +101,7 @@ for m_i=1:4
 end
 tot_perf=tot_emgs*length(this_opt);
 
-for m_i=1:4                         %for each subject
+for m_i=1:numel(SETS)                         %for each subject
     
     subject= SETS(m_i);
     
