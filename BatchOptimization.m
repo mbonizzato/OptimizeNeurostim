@@ -296,7 +296,7 @@ save(fn,'covf','dataset','hyperparams','infm','kappa','likf','MaxQueries',...
 clear perft perftt
 for k_i=1:numel(this_opt)
     jj=0;
-    for m_i=1:4 
+    for m_i=1:numel(SETS)
         subject= SETS(m_i);
         for e_i=1:8
             jj=jj+1; %replicates are individual muscles
