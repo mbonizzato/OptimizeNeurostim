@@ -296,9 +296,8 @@ save(fn,'covf','dataset','hyperparams','infm','kappa','likf','MaxQueries',...
 clear perft perftt
 for k_i=1:numel(this_opt)
     jj=0;
-    for m_i=1:numel(SETS)
-        subject= SETS(m_i);
-        for e_i=1:8
+    for m_i=1:size(PP,1)
+        for e_i=1:size(PP,2)
             jj=jj+1; %replicates are individual muscles
             ppm=mean(PP{m_i,e_i,k_i});
             ppt=mean(PP_t{m_i,e_i,k_i});
