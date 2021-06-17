@@ -8,7 +8,7 @@
 
 % Select moodality
 dataset='rat';              %selected dataset
-which_opt= 'noisemax';     %hyperparameter to optimize
+which_opt= 'nrand';     %hyperparameter to optimize
 nRep=50;                    %number of repetitions
 
 % Load data
@@ -96,7 +96,7 @@ PP_t = cell(numel(SETS),8);
 tic;
 count_perf=0;
 tot_emgs=0;
-for m_i=1:4
+for m_i=1:numel(SETS) 
     tot_emgs=tot_emgs+ length(SETS(m_i).emgs);
 end
 tot_perf=tot_emgs*length(this_opt);
