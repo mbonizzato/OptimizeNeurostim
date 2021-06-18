@@ -1,4 +1,4 @@
-%Full implementation of GP-BO optimization of neurostimulation
+%Full, variable-lengthscales implementation of GP-BO optimization of neurostimulation
 %The code below displays algorithmic performance on provided datasets
 %For all values of a selected hyperparameter.
 
