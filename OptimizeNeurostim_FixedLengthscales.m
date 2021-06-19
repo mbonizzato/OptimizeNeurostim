@@ -44,25 +44,23 @@ end
 %rho is the kernel geometrical hyperparameter (lengthscales)
 %kappa is the UCB acquisition function hyperparameter
 %nrand is the number of random queries performed to initialize the GP-BO
-%noisemax is the maximum value for the noise hyperparameter
+
 if strcmp(dataset,'nhp') 
     kappa=4;   
     rho=3; 
-    nrnd=1;
-    noise_estim= 0.001;         
+    nrnd=1;     
 elseif strcmp(dataset,'rat') 
     kappa=3;   
     rho=5; 
-    nrnd=1;
-    noise_estim= 0.001;         
+    nrnd=1;      
 end
 %kappa and rho need to vary between the nhp and rat implementation
+
+m_regularization= 0.001;   %m_regularization is the regularization value used during matrix inversion in CalcPrediction (see below)
 
 %A selection of values to be tested for the selected hyperparameter
 if strcmp(which_opt,'rho')
     this_opt = [1:8]; % rho
-elseif strcmp(which_opt,'noise_estim')
-    this_opt=[0.001 0.005 0.01 0.05 0.1 0.5 1 5 10]; % noise
 elseif strcmp(which_opt,'kappa')
     this_opt=[1:.3:5.5 6:10]; % kappa
 elseif strcmp(which_opt,'nrand')
@@ -96,8 +94,6 @@ for m_i=1:numel(SETS)                         %for each subject
     
         if strcmp(which_opt,'rho')
             rho=this_opt(k_i);
-        elseif strcmp(which_opt,'noise_estim')
-            noise_estim=this_opt(k_i);
         elseif strcmp(which_opt,'kappa')
             kappa=this_opt(k_i);
         elseif strcmp(which_opt,'nrand')
@@ -192,7 +188,7 @@ for m_i=1:numel(SETS)                         %for each subject
                     end
 
                     %GP-BO optimization
-                    [MapPrediction,VarianceMap,K_maj] = CalcPrediction(P_test{rep_i},noise_estim,distKern,K_maj,DimSearchSpace);  
+                    [MapPrediction,VarianceMap,K_maj] = CalcPrediction(P_test{rep_i},m_regularization,distKern,K_maj,DimSearchSpace);  
 
                     % We only test for gp predictions at electrodes that
                     % we had queried (presumable we only want to return an
@@ -255,7 +251,7 @@ end
 ddate=[dd1 dd2 dd3];
 fn=['basicversion_' dataset '_' which_opt '_' num2str(nRep) '_' ddate]; %file name
 %
-save(fn,'dataset','kappa','MaxQueries','msr','noise_estim','nRep',...
+save(fn,'dataset','kappa','MaxQueries','msr','m_regularization','nRep',...
     'nrnd','PP','PP_t','PT','rho','RSQ','this_opt','which_opt','YMU')
 
 
@@ -279,34 +275,19 @@ perft=perft(:,~isnan(perft(1,:)));
 perftt=perftt(:,~isnan(perftt(1,:)));
 
 
-if strcmp(which_opt,'rholow') || strcmp(which_opt,'noisemax')
-
-    %using log scale
-    figure
-    semilogx(this_opt,mean(perft'),'b')
-    hold on
-    semilogx(this_opt,mean(perftt'),'k')
-    semilogx(this_opt,mean(perft')+ std(perft')/sqrt(size(perft,2)),'b')
-    semilogx(this_opt,mean(perft')-std(perft')/sqrt(size(perft,2)),'b')
-    semilogx(this_opt,mean(perftt')+ std(perftt')/sqrt(size(perftt,2)),'k')
-    semilogx(this_opt,mean(perftt')-std(perftt')/sqrt(size(perftt,2)),'k')
-    ylim([0 1])
-    xlim([this_opt(1), this_opt(end)])
-
-else
     
-    %using linear scale for all other hyperparameters
-    figure
-    plot(this_opt,mean(perft'),'b')
-    hold on
-    plot(this_opt,mean(perftt'),'k')
-    plot(this_opt,mean(perft')+ std(perft')/sqrt(size(perft,2)),'b')
-    plot(this_opt,mean(perft')-std(perft')/sqrt(size(perft,2)),'b')
-    plot(this_opt,mean(perftt')+ std(perftt')/sqrt(size(perftt,2)),'k')
-    plot(this_opt,mean(perftt')-std(perftt')/sqrt(size(perftt,2)),'k')
-    ylim([0 1])
+%using linear scale for all other hyperparameters
+figure
+plot(this_opt,mean(perft'),'b')
+hold on
+plot(this_opt,mean(perftt'),'k')
+plot(this_opt,mean(perft')+ std(perft')/sqrt(size(perft,2)),'b')
+plot(this_opt,mean(perft')-std(perft')/sqrt(size(perft,2)),'b')
+plot(this_opt,mean(perftt')+ std(perftt')/sqrt(size(perftt,2)),'k')
+plot(this_opt,mean(perftt')-std(perftt')/sqrt(size(perftt,2)),'k')
+ylim([0 1])
 
-end
+
 %data are displayed as mean +/- SEM
 
 title(['Algorithmic performance for multiple values of ' which_opt])
@@ -318,14 +299,14 @@ ylabel('Performance')
 
 
 %%
-function [NEWMEAN,NEWVAR,K_maj] = CalcPrediction(PERFORMANCE,NoiseEstim,distKern,K_maj,NUMELMAP)
+function [NEWMEAN,NEWVAR,K_maj] = CalcPrediction(PERFORMANCE,m_regularization,distKern,K_maj,NUMELMAP)
 % Takes the performance matrix, the prior prediction and the prior
 % variance map and finds the new prediction and variance matrices.
     t = size(PERFORMANCE,1);
     AddedRow = distKern(PERFORMANCE(end,1),PERFORMANCE(1:(end),1));
     K_maj(t,1:t) = AddedRow;
     K_maj(1:t,t) = AddedRow;
-    K_maj_n = K_maj + eye(t)*NoiseEstim;
+    K_maj_n = K_maj + eye(t)*m_regularization;
     KInv = K_maj_n^-1;
     NEWMEAN = zeros(1,NUMELMAP);
     NEWVAR = NEWMEAN;
