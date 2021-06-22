@@ -1,3 +1,8 @@
+%@file OptimizeNeurostim_FixedLengthscales.m
+%@authors   Marco Bonizzato https://github.com/mbonizzato
+%           Olivier Caron-Grenier https://github.com/OlivierCG
+%@version 1.0 / June 2021
+
 %Fixed-lengthscales (rho) implementation of GP-BO optimization of neurostimulation
 %The code below displays algorithmic performance on provided datasets
 %For all values of a selected hyperparameter.
