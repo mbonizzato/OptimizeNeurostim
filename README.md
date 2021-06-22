@@ -1,7 +1,7 @@
 # OptimizeNeurostim
 
-[General description]
 GP-BO optimization of neurostimulation.
+
 Companion code for the following paper : [Link to paper available upon publication]
 
 Please cite the present code as:
@@ -14,6 +14,7 @@ The dataset can be downloaded at :  [Link to data available upon publication]
 
 Please cite as:
 Bonizzato M., Massai E.&, Côté S.&, Quessy S., Martinez M., and Dancause N. 2021. “OptimizeNeurostim” OSF. osf.io/54vhx.
+
 &, these authors equally contributed to the dataset.
 
 
@@ -31,9 +32,13 @@ Requires GPML Matlab Code version 4.2 by Carl Edward Rasmussen and Hannes Nickis
 http://www.gaussianprocess.org/gpml/code/matlab/doc/
 
 The software included the following line, where "evalc" is used to suppress screen output.
-evalc('hyp = minimize(hyp, @gp, -10, infprior, [], covf, likf, x, y);');
+
+    evalc('hyp = minimize(hyp, @gp, -10, infprior, [], covf, likf, x, y);');
+
 For the sake of performance, we recommend substituting this line with:
-hyp = minimize(hyp, @gp, -10, infprior, [], covf, likf, x, y);
+
+    hyp = minimize(hyp, @gp, -10, infprior, [], covf, likf, x, y);
+
 and manually modifying the GPML minimize function to suppress all screen outputs.
 
 
