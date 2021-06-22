@@ -13,8 +13,8 @@ Bonizzato M., Guay-Hottin R., Laferrière S., Caron-Grenier O., Lajoie G. and Da
 The dataset can be downloaded at :  [Link to data available upon publication]
 
 Please cite as:
-Bonizzato M., Massai E.*, Côté S.*, Quessy S., Martinez M., and Dancause N. 2021. “OptimizeNeurostim” OSF. osf.io/54vhx.
-*, these authors equally contributed to the dataset.
+Bonizzato M., Massai E.&, Côté S.&, Quessy S., Martinez M., and Dancause N. 2021. “OptimizeNeurostim” OSF. osf.io/54vhx.
+&, these authors equally contributed to the dataset.
 
 
 
