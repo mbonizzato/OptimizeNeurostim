@@ -1,3 +1,9 @@
+%@file OptimizeNeurostim.m
+%@authors   Marco Bonizzato https://github.com/mbonizzato
+%           Samuel Laferriere https://github.com/samlaf
+%           Rose Guay-Hottin https://github.com/RoseGH20
+%@version 1.0 / June 2021
+
 %Full, variable-lengthscales implementation of GP-BO optimization of neurostimulation
 %The code below displays algorithmic performance on provided datasets
 %For all values of a selected hyperparameter.
