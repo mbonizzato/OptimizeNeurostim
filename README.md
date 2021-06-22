@@ -7,12 +7,15 @@ Companion code for the following paper : [Link to paper available upon publicati
 Please cite the present code as:
 Bonizzato M., Guay-Hottin R., Laferrière S., Caron-Grenier O., Lajoie G. and Dancause N. 2021. “OptimizeNeurostim”, GitHub.  https://github.com/mbonizzato/OptimizeNeurostim/.
 
+When applying this code to your own research, please note that hyperparameter selection is crucial for GP-BO applications. 
+We recommend running this code on own existing or surrogate data to tune at least the UCB acquisition function hyperparameter "k" (kappa) before deploying.
+
 
 ### Data
 
 The dataset can be downloaded at :  [Link to data available upon publication]
 
-Please cite as:
+Please cite the dataset as:
 Bonizzato M., Massai E.&, Côté S.&, Quessy S., Martinez M., and Dancause N. 2021. “OptimizeNeurostim” OSF. osf.io/54vhx.
 
 &, these authors equally contributed to the dataset.
@@ -21,11 +24,20 @@ Bonizzato M., Massai E.&, Côté S.&, Quessy S., Martinez M., and Dancause N. 20
 
 ## Custom Matlab implementation
 
+Fixed-lengthscales (rho) implementation of GP-BO optimization of neurostimulation.
+Computes algorithmic performance for all values of a selected hyperparameter, for a given dataset.
+
+This is the fastest (About 10x) and most performant implementation (+2% accuracy on our datasets) of GP-BO. 
+However, the fixed-lengthscale hyperparameter choice comes with less flexibility (see article).
+All alternative versions introduce the variable-lengthscale option.
+
 Tested with all Matlab version between 2018b and 2021b.
 Does not require specialized third-party libraries.
 
 
 ## GPML Matlab implementation
+
+Variable-lengthscales (rho min/max) implementation of GP-BO optimization of neurostimulation.
 
 Tested with all Matlab version between 2018b and 2021b.
 Requires GPML Matlab Code version 4.2 by Carl Edward Rasmussen and Hannes Nickisch
