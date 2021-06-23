@@ -54,7 +54,7 @@ For the sake of performance, we recommend substituting this line with:
 and manually modifying the GPML minimize function to suppress all screen outputs.
 
 
-## Python implementation
+## Gpy Python implementation
 
 
 To install Gpy (https://sheffieldml.github.io/GPy/):
