@@ -13,7 +13,7 @@ We recommend running this code on own existing or surrogate data to tune at leas
 
 ### Data
 
-The dataset can be downloaded at :  [Link to data available upon publication]
+The dataset can be downloaded at :  https://osf.io/54vhx/
 
 Please cite the dataset as:
 Bonizzato M., Massai E.&, Côté S.&, Quessy S., Martinez M., and Dancause N. 2021. “OptimizeNeurostim” OSF. osf.io/54vhx.
