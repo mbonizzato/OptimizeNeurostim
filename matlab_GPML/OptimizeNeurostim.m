@@ -14,7 +14,7 @@
 
 % Select moodality
 dataset='nhp';              %selected dataset
-which_opt= 'noisemax';     %hyperparameter to optimize
+which_opt= 'kappa';     %hyperparameter to optimize
 nRep=50;                    %number of repetitions
 
 % Load data
@@ -91,21 +91,27 @@ elseif strcmp(which_opt,'nrand')
     end
 end
     
-%prepare results storage
-clear hyperparams PP PT YMU PP_t msr
-hyperparams = cell(size(SETS,2),8,numel(this_opt),nRep,SETS(1).nChan); 
-msr = cell(size(SETS,2),8,numel(this_opt),nRep,SETS(1).nChan); 
-PP = cell(numel(SETS),8);
-PP_t = cell(numel(SETS),8);
-
 %update timing estimation utilities
 tic;
 count_perf=0;
 tot_emgs=0;
+max_emgs=0;
 for m_i=1:numel(SETS) 
     tot_emgs=tot_emgs+ length(SETS(m_i).emgs);
+    if length(SETS(m_i).emgs)>max_emgs
+        max_emgs=length(SETS(m_i).emgs);
+    end
 end
 tot_perf=tot_emgs*length(this_opt);
+
+%prepare results storage
+hyperparams = cell(size(SETS,2),max_emgs,numel(this_opt),nRep,SETS(1).nChan); %hyperparameters
+Stored_MaxSeenResp = cell(size(SETS,2),max_emgs,numel(this_opt),nRep,SETS(1).nChan);  %maximum recorded response
+Stored_perf_explore = cell(numel(SETS),max_emgs); %exploration score
+Stored_perf_exploit = cell(numel(SETS),max_emgs); %exploitation score
+Stored_P_test=cell(numel(SETS),max_emgs,numel(this_opt),nRep); %points tested and response
+Stored_MappingAccuracyRSQ=cell(size(SETS,2),max_emgs,numel(this_opt),nRep); %R-squared of mapping accuracy
+Stored_YMU = cell(size(SETS,2),max_emgs,numel(this_opt),nRep,SETS(1).nChan); %predicted map, as average of GP fitting
 
 for m_i=1:numel(SETS)                         %for each subject
     
@@ -239,8 +245,9 @@ for m_i=1:numel(SETS)                         %for each subject
                             P_max(q)= BestQuery; 
                             %store all info
                             hyperparams{m_i,e_i,k_i,rep_i,q} = hyp; 
-                            msr{m_i,e_i,k_i,rep_i,q} = MaxSeenResp;
-                            YMU{m_i,e_i,k_i,rep_i,q}=ymu;
+                            Stored_MaxSeenResp{m_i,e_i,k_i,rep_i,q} = MaxSeenResp;
+                            Stored_YMU{m_i,e_i,k_i,rep_i,q}=ymu;
+                            %ymu is the predicted average GP value across the map
                             q=q+1; 
                         end
 
@@ -263,13 +270,13 @@ for m_i=1:numel(SETS)                         %for each subject
                 end    
 
                 %store all tests 
-                PT{m_i,e_i,k_i,rep_i}=P_test{rep_i};
+                Stored_P_test{m_i,e_i,k_i,rep_i}=P_test{rep_i};
             end
 
             %store all performance estimations
-            RSQ{m_i,e_i,k_i}=perf_rsq;
-            PP{m_i,e_i,k_i}=perf_explore;
-            PP_t{m_i,e_i,k_i}= MPm(perf_exploit)/mMPm;
+            Stored_MappingAccuracyRSQ{m_i,e_i,k_i}=perf_rsq;
+            Stored_perf_explore{m_i,e_i,k_i}=perf_explore;
+            Stored_perf_exploit{m_i,e_i,k_i}= MPm(perf_exploit)/mMPm;
             
             count_perf=count_perf+1;
         end
@@ -295,8 +302,8 @@ end
 ddate=[dd1 dd2 dd3];
 fn=[dataset '_' which_opt '_' num2str(nRep) '_' ddate]; %file name
 save(fn,'covf','dataset','hyperparams','infm','kappa','likf','MaxQueries',...
-    'mKernel','msr','noisemax','noise_min','nRep','nrnd','prior','PP',...
-    'PP_t','PT','rho_high','rho_low','RSQ','this_opt','which_opt','YMU')
+    'mKernel','Stored_MaxSeenResp','noisemax','noise_min','nRep','nrnd','prior','Stored_perf_explore',...
+    'Stored_perf_exploit','Stored_P_test','rho_high','rho_low','Stored_MappingAccuracyRSQ','this_opt','which_opt','Stored_YMU')
 
 
 %%
@@ -304,52 +311,67 @@ save(fn,'covf','dataset','hyperparams','infm','kappa','likf','MaxQueries',...
 clear perft perftt
 for k_i=1:numel(this_opt)
     jj=0;
-    for m_i=1:size(PP,1)
-        for e_i=1:size(PP,2)
+    for m_i=1:size(Stored_perf_explore,1)
+        for e_i=1:size(Stored_perf_explore,2)
             jj=jj+1; %replicates are individual muscles
-            ppm=mean(PP{m_i,e_i,k_i});
-            ppt=mean(PP_t{m_i,e_i,k_i});
-            perft(k_i,jj)=[ppm(end)]; %we will display final performance
-            perftt(k_i,jj)=[ppt(end)];
+            MeanPerfExploration=mean(Stored_perf_explore{m_i,e_i,k_i});
+            MeanPerfExploitation=mean(Stored_perf_exploit{m_i,e_i,k_i});
+            FinalMeanPerfExploration(k_i,jj)=[MeanPerfExploration(end)]; %we will display final performance
+            FinalMeanPerfExploitation(k_i,jj)=[MeanPerfExploitation(end)];
         end
     end
 end
 
-perft=perft(:,~isnan(perft(1,:)));
-perftt=perftt(:,~isnan(perftt(1,:)));
+FinalMeanPerfExploration=FinalMeanPerfExploration(:,~isnan(FinalMeanPerfExploration(1,:)));
+FinalMeanPerfExploitation=FinalMeanPerfExploitation(:,~isnan(FinalMeanPerfExploitation(1,:)));
 
 
-if strcmp(which_opt,'rholow') || strcmp(which_opt,'noisemax')
-
-    %using log scale
-    figure
-    semilogx(this_opt,mean(perft'),'b')
-    hold on
-    semilogx(this_opt,mean(perftt'),'k')
-    semilogx(this_opt,mean(perft')+ std(perft')/sqrt(size(perft,2)),'b')
-    semilogx(this_opt,mean(perft')-std(perft')/sqrt(size(perft,2)),'b')
-    semilogx(this_opt,mean(perftt')+ std(perftt')/sqrt(size(perftt,2)),'k')
-    semilogx(this_opt,mean(perftt')-std(perftt')/sqrt(size(perftt,2)),'k')
-    ylim([0 1])
-    xlim([this_opt(1), this_opt(end)])
-
-else
+if length(this_opt) == 1
     
-    %using linear scale for all other hyperparameters
     figure
-    plot(this_opt,mean(perft'),'b')
+    errorbar(mean(FinalMeanPerfExploration'), std(FinalMeanPerfExploration')/sqrt(size(FinalMeanPerfExploration,2)),'b')
     hold on
-    plot(this_opt,mean(perftt'),'k')
-    plot(this_opt,mean(perft')+ std(perft')/sqrt(size(perft,2)),'b')
-    plot(this_opt,mean(perft')-std(perft')/sqrt(size(perft,2)),'b')
-    plot(this_opt,mean(perftt')+ std(perftt')/sqrt(size(perftt,2)),'k')
-    plot(this_opt,mean(perftt')-std(perftt')/sqrt(size(perftt,2)),'k')
+    scatter(1,mean(FinalMeanPerfExploration'),'b+')
+    errorbar(mean(FinalMeanPerfExploitation'), std(FinalMeanPerfExploitation')/sqrt(size(FinalMeanPerfExploitation,2)),'k')
+    scatter(1,mean(FinalMeanPerfExploitation'),'k+')
     ylim([0 1])
+    xticks([1])
+    xticklabels({[which_opt ' = ' num2str(this_opt)]})
+    title(['Algorithmic performance for a single value of ' which_opt])
+    
+else
+    if strcmp(which_opt,'rholow') || strcmp(which_opt,'noisemax')
 
+        %using log scale
+        figure
+        semilogx(this_opt,mean(FinalMeanPerfExploration'),'b')
+        hold on
+        semilogx(this_opt,mean(FinalMeanPerfExploitation'),'k')
+        semilogx(this_opt,mean(FinalMeanPerfExploration')+ std(FinalMeanPerfExploration')/sqrt(size(FinalMeanPerfExploration,2)),'b')
+        semilogx(this_opt,mean(FinalMeanPerfExploration')-std(FinalMeanPerfExploration')/sqrt(size(FinalMeanPerfExploration,2)),'b')
+        semilogx(this_opt,mean(FinalMeanPerfExploitation')+ std(FinalMeanPerfExploitation')/sqrt(size(FinalMeanPerfExploitation,2)),'k')
+        semilogx(this_opt,mean(FinalMeanPerfExploitation')-std(FinalMeanPerfExploitation')/sqrt(size(FinalMeanPerfExploitation,2)),'k')
+        ylim([0 1])
+        xlim([this_opt(1), this_opt(end)])
+
+    else
+
+        %using linear scale for all other hyperparameters
+        figure
+        plot(this_opt,mean(FinalMeanPerfExploration'),'b')
+        hold on
+        plot(this_opt,mean(FinalMeanPerfExploitation'),'k')
+        plot(this_opt,mean(FinalMeanPerfExploration')+ std(FinalMeanPerfExploration')/sqrt(size(FinalMeanPerfExploration,2)),'b')
+        plot(this_opt,mean(FinalMeanPerfExploration')-std(FinalMeanPerfExploration')/sqrt(size(FinalMeanPerfExploration,2)),'b')
+        plot(this_opt,mean(FinalMeanPerfExploitation')+ std(FinalMeanPerfExploitation')/sqrt(size(FinalMeanPerfExploitation,2)),'k')
+        plot(this_opt,mean(FinalMeanPerfExploitation')-std(FinalMeanPerfExploitation')/sqrt(size(FinalMeanPerfExploitation,2)),'k')
+        ylim([0 1])
+
+    end
+    title(['Algorithmic performance for multiple values of ' which_opt])
 end
 %data are displayed as mean +/- SEM
 
-title(['Algorithmic performance for multiple values of ' which_opt])
+
 xlabel('Hyperparameter value')
 ylabel('Performance') 
-
