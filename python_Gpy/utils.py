@@ -137,9 +137,8 @@ def param_grid(which_opt, dataset, verbose=True):
         print('Values of ' + which_opt + ' to be tested: '+str(this_opt))   
     return this_opt
 
-def plot_optim_results(PP,PP_t,which_opt, dataset):
+def plot_optim_results(PP,PP_t,which_opt, this_opt, dataset):
     # show performance graphs
-    this_opt= param_grid(which_opt, dataset, verbose=False)   
     if dataset=='nhp':
         emgs=[6,8,4,4]
         n= np.sum(emgs)             
@@ -152,8 +151,12 @@ def plot_optim_results(PP,PP_t,which_opt, dataset):
         jj=0
         for m_i in range(len(emgs)):
             for syn in range(emgs[m_i]):
-                ppm= np.mean(PP[m_i,syn,k_i], axis=0)
-                ppt= np.mean(PP_t[m_i,syn,k_i], axis=0)
+                if len(this_opt)==1:
+                    ppm= np.mean(PP[m_i,syn], axis=0)
+                    ppt= np.mean(PP_t[m_i,syn], axis=0)
+                else:
+                    ppm= np.mean(PP[m_i,syn,k_i], axis=0)
+                    ppt= np.mean(PP_t[m_i,syn,k_i], axis=0)
                 perft[k_i,jj]= ppm[-1] # we will display final performance
                 perftt[k_i,jj]= ppt[-1]
                 jj=jj+1 # replicates are individual muscles
@@ -168,8 +171,8 @@ def plot_optim_results(PP,PP_t,which_opt, dataset):
     plt.fill_between(this_opt,np.mean(perftt, axis=1) - (np.std(perftt, axis=1)/np.sqrt(perftt.shape[1])),
                      np.mean(perftt, axis=1) + (np.std(perftt, axis=1)/np.sqrt(perftt.shape[1])),
                      color='black', alpha=0.2)
-    print(np.mean(perft, axis=1))
-    print(np.mean(perftt, axis=1))
+    print('Exploration: '+ str(np.mean(perft, axis=1)))
+    print('Exploitation: ' + str(np.mean(perftt, axis=1)))
     plt.ylim([0,1])
     plt.ylabel('Performance')
     if which_opt=='rho_low' or which_opt=='noise_min' or which_opt=='noise_max': # using log scale
