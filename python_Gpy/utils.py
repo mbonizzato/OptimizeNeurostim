@@ -145,8 +145,8 @@ def plot_optim_results(PP,PP_t,which_opt, this_opt, dataset):
     else:
         emgs= [6,7,8,6,5,8]
         n= np.sum(emgs)        
-    perft= np.zeros((len(this_opt),n))
-    perftt= np.zeros((len(this_opt),n))
+    FinalMeanPerfExploration= np.zeros((len(this_opt),n))
+    FinalMeanPerfExploitation= np.zeros((len(this_opt),n))
     for k_i in range(len(this_opt)):
         jj=0
         for m_i in range(len(emgs)):
@@ -157,22 +157,22 @@ def plot_optim_results(PP,PP_t,which_opt, this_opt, dataset):
                 else:
                     ppm= np.mean(PP[m_i,syn,k_i], axis=0)
                     ppt= np.mean(PP_t[m_i,syn,k_i], axis=0)
-                perft[k_i,jj]= ppm[-1] # we will display final performance
-                perftt[k_i,jj]= ppt[-1]
+                FinalMeanPerfExploration[k_i,jj]= ppm[-1] # we will display final performance
+                FinalMeanPerfExploitation[k_i,jj]= ppt[-1]
                 jj=jj+1 # replicates are individual muscles
     if which_opt=='rho_low' or which_opt=='noise_min' or which_opt=='noise_max':
         this_opt=np.log10(this_opt) # using log scale
     # using linear scale for all other hyperparameters
-    plt.plot(this_opt,np.mean(perft, axis=1), '-ob', alpha=0.9, label= 'Exploration (knowledge of best channel)')
-    plt.plot(this_opt,np.mean(perftt, axis=1), '-ok', alpha= 0.9, label='Exploitation (stimulation efficacy)')
-    plt.fill_between(this_opt,np.mean(perft, axis=1) - (np.std(perft, axis=1)/np.sqrt(perft.shape[1])),
-                     np.mean(perft, axis=1) + (np.std(perft, axis=1)/np.sqrt(perft.shape[1])),
+    plt.plot(this_opt,np.mean(FinalMeanPerfExploration, axis=1), '-ob', alpha=0.9, label= 'Exploration (knowledge of best channel)')
+    plt.plot(this_opt,np.mean(FinalMeanPerfExploitation, axis=1), '-ok', alpha= 0.9, label='Exploitation (stimulation efficacy)')
+    plt.fill_between(this_opt,np.mean(FinalMeanPerfExploration, axis=1) - (np.std(FinalMeanPerfExploration, axis=1)/np.sqrt(FinalMeanPerfExploration.shape[1])),
+                     np.mean(FinalMeanPerfExploration, axis=1) + (np.std(FinalMeanPerfExploration, axis=1)/np.sqrt(FinalMeanPerfExploration.shape[1])),
                      color='blue', alpha=0.2)
-    plt.fill_between(this_opt,np.mean(perftt, axis=1) - (np.std(perftt, axis=1)/np.sqrt(perftt.shape[1])),
-                     np.mean(perftt, axis=1) + (np.std(perftt, axis=1)/np.sqrt(perftt.shape[1])),
+    plt.fill_between(this_opt,np.mean(FinalMeanPerfExploitation, axis=1) - (np.std(FinalMeanPerfExploitation, axis=1)/np.sqrt(FinalMeanPerfExploitation.shape[1])),
+                     np.mean(FinalMeanPerfExploitation, axis=1) + (np.std(FinalMeanPerfExploitation, axis=1)/np.sqrt(FinalMeanPerfExploitation.shape[1])),
                      color='black', alpha=0.2)
-    print('Exploration: '+ str(np.mean(perft, axis=1)))
-    print('Exploitation: ' + str(np.mean(perftt, axis=1)))
+    print('Exploration: '+ str(np.mean(FinalMeanPerfExploration, axis=1)))
+    print('Exploitation: ' + str(np.mean(FinalMeanPerfExploitation, axis=1)))
     plt.ylim([0,1])
     plt.ylabel('Performance')
     if which_opt=='rho_low' or which_opt=='noise_min' or which_opt=='noise_max': # using log scale
@@ -181,5 +181,3 @@ def plot_optim_results(PP,PP_t,which_opt, this_opt, dataset):
         plt.xlabel('Hyperparameter value')
     plt.title('Algorithmic performance for multiple values of '+ which_opt)
     plt.legend(loc='lower center')
-    
-        
