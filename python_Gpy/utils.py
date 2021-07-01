@@ -137,7 +137,7 @@ def param_grid(which_opt, dataset, verbose=True):
         print('Values of ' + which_opt + ' to be tested: '+str(this_opt))   
     return this_opt
 
-def plot_optim_results(PP,PP_t,which_opt, this_opt, dataset):
+def plot_optim_results(Stored_perf_explore,Stored_perf_exploit,which_opt, this_opt, dataset):
     # show performance graphs
     if dataset=='nhp':
         emgs=[6,8,4,4]
@@ -152,13 +152,13 @@ def plot_optim_results(PP,PP_t,which_opt, this_opt, dataset):
         for m_i in range(len(emgs)):
             for syn in range(emgs[m_i]):
                 if len(this_opt)==1:
-                    ppm= np.mean(PP[m_i,syn], axis=0)
-                    ppt= np.mean(PP_t[m_i,syn], axis=0)
+                    MeanPerfExploration= np.mean(Stored_perf_explore[m_i,syn], axis=0)
+                    MeanPerfExploitation= np.mean(Stored_perf_exploit[m_i,syn], axis=0)
                 else:
-                    ppm= np.mean(PP[m_i,syn,k_i], axis=0)
-                    ppt= np.mean(PP_t[m_i,syn,k_i], axis=0)
-                FinalMeanPerfExploration[k_i,jj]= ppm[-1] # we will display final performance
-                FinalMeanPerfExploitation[k_i,jj]= ppt[-1]
+                    MeanPerfExploration= np.mean(Stored_perf_explore[m_i,syn,k_i], axis=0)
+                    MeanPerfExploitation= np.mean(Stored_perf_exploit[m_i,syn,k_i], axis=0)
+                FinalMeanPerfExploration[k_i,jj]= MeanPerfExploration[-1] # we will display final performance
+                FinalMeanPerfExploitation[k_i,jj]= MeanPerfExploitation[-1]
                 jj=jj+1 # replicates are individual muscles
     if which_opt=='rho_low' or which_opt=='noise_min' or which_opt=='noise_max':
         this_opt=np.log10(this_opt) # using log scale
