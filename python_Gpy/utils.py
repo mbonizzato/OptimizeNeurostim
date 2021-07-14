@@ -139,12 +139,15 @@ def param_grid(which_opt, dataset, verbose=True):
 
 def plot_optim_results(Stored_perf_explore,Stored_perf_exploit,which_opt, this_opt, dataset):
     # show performance graphs
-    if dataset=='nhp':
-        emgs=[6,8,4,4]
-        n= np.sum(emgs)             
-    else:
-        emgs= [6,7,8,6,5,8]
-        n= np.sum(emgs)        
+    emgs=[]
+    for m_i in range(Stored_perf_explore.shape[0]): # total number of subjects
+        count=0
+        for e_i in range(Stored_perf_explore.shape[1]): # max number of emgs
+            if np.all((Stored_perf_explore[m_i,e_i] != 0.0)):
+                count+=1
+        emgs.append(count)
+    n= np.sum(emgs)
+           
     FinalMeanPerfExploration= np.zeros((len(this_opt),n))
     FinalMeanPerfExploitation= np.zeros((len(this_opt),n))
     for k_i in range(len(this_opt)):
