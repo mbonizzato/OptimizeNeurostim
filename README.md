@@ -5,7 +5,7 @@ GP-BO optimization of neurostimulation.
 Companion code for the following paper : [Link to paper available upon publication]
 
 Please cite the present code as:
-Bonizzato M., Guay-Hottin R., Laferrière S., Caron-Grenier O., Lajoie G. and Dancause N. 2021. “OptimizeNeurostim”, GitHub.  https://github.com/mbonizzato/OptimizeNeurostim/.
+Bonizzato M., Guay-Hottin R., Laferrière S., Caron-Grenier O., Lajoie G. and Dancause N. 2022. “OptimizeNeurostim”, GitHub.  https://github.com/mbonizzato/OptimizeNeurostim/.
 
 When applying this code to your own research, please note that hyperparameter selection is crucial for GP-BO applications. 
 We recommend running this code on own existing or surrogate data to tune at least the UCB acquisition function hyperparameter "k" (kappa) before deploying.
